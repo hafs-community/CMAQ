@@ -46,8 +46,7 @@ C is connected to a file with a name, else it is .FALSE.
       LOGICAL, SAVE :: AVAIL( MAXUN ) = .TRUE.   ! array
       INTEGER, SAVE :: IGO = 1
 
-      GO TO ( 10001, 20001 ) IGO
-10001 CONTINUE
+      IF ( IGO .EQ. 1 ) THEN
 
 C set unit numbers that are not available for I/O
       AVAIL( 1 ) = .FALSE.
@@ -56,25 +55,27 @@ C set unit numbers that are not available for I/O
 
 C begin loop on unit numbers
       IUN = 10
+
+      ENDIF
+
+      IGO = 2
+
 101   CONTINUE
       IF ( IUN .GT. MAXUN ) GO TO 301
       INQUIRE ( UNIT = IUN, NAMED = NMD )
       IF ( NMD ) THEN
          AVAIL( IUN ) = .FALSE.
-         GO TO 201
+         IUN = IUN + 1
+         GO TO 101
       ELSE IF ( .NOT. AVAIL( IUN ) ) THEN
-         GO TO 201
+         IUN = IUN + 1
+         GO TO 101
       END IF
       JUNIT = IUN
       AVAIL( IUN ) = .FALSE.
-
-      IGO = 2
-      RETURN
-20001 CONTINUE
-
-201   CONTINUE
       IUN = IUN + 1
-      GO TO 101
+
+      RETURN
 
 301   CONTINUE
       WRITE( LUNOUT,2001 )
